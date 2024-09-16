@@ -26,6 +26,15 @@ c.adjust_window_size_when_changing_font_size = false
 c.audible_bell = "Disabled"
 c.scrollback_lines = 3000
 c.default_workspace = "main"
+c.launch_menu = { {
+  label = 'Developer Powershell for VS 2022',
+  args = {
+    'powershell.exe',
+    '-noe',
+    '-c',
+    '&{Import-Module "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/Tools/Microsoft.VisualStudio.DevShell.dll"; Enter-VsDevShell f5dc2280}',
+  },
+} }
 c.status_update_interval = 2000
 
 -- appearance
