@@ -21,21 +21,36 @@ c.font_rules = {
   },
 }
 c.font_size = 12
-c.default_prog = utils.is_windows and { "pwsh", "-NoLogo" } or "zsh"
+c.default_prog = utils.is_windows and
+    { "cmd.exe", '/k', "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvars64.bat" } or
+    "zsh"
 c.adjust_window_size_when_changing_font_size = false
 c.audible_bell = "Disabled"
 c.scrollback_lines = 3000
 c.default_workspace = "main"
-c.launch_menu = { {
-  label = 'Developer Powershell for VS 2022',
-  args = {
-    'powershell.exe',
-    '-noe',
-    '-c',
-    '&{Import-Module "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/Tools/Microsoft.VisualStudio.DevShell.dll"; Enter-VsDevShell f5dc2280}',
-  },
-} }
 c.status_update_interval = 2000
+
+local launch_menu = {}
+
+if wez.target_triple == 'x86_64-pc-windows-msvc' then
+  table.insert(launch_menu, {
+    label = 'PowerShell',
+    args = { 'powershell.exe', '-NoLogo' },
+  })
+
+  -- Find installed visual studio version(s) and add their compilation
+  -- environment command prompts to the menu
+  table.insert(launch_menu, {
+    label = 'x64 Native Tools VS 2022',
+    args = {
+      'cmd.exe',
+      '/k',
+      "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvars64.bat",
+    },
+  })
+end
+
+c.launch_menu = launch_menu
 
 -- appearance
 appearance.apply_to_config(c)
