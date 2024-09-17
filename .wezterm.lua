@@ -1,38 +1,40 @@
-local wez = require "wezterm"
+local wezterm = require "wezterm"
 local utils = require "lua.utils"
 
 local appearance = require "lua.appearance"
-local bar = wez.plugin.require "https://github.com/adriankarlen/bar.wezterm"
+local bar = wezterm.plugin.require "https://github.com/adriankarlen/bar.wezterm"
 local mappings = require "lua.mappings"
 
-local c = {}
+local sessionizer = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer.wezterm"
 
-if wez.config_builder then
-  c = wez.config_builder()
+local config = {}
+
+if wezterm.config_builder then
+  config = wezterm.config_builder()
 end
 
 -- General configurations
-c.font = wez.font("EnvyCodeR Nerd Font Mono", { weight = "Medium" })
-c.font_rules = {
+config.font = wezterm.font("EnvyCodeR Nerd Font Mono", { weight = "Medium" })
+config.font_rules = {
   {
     italic = true,
     intensity = "Half",
-    font = wez.font("EnvyCodeR Nerd Font Mono", { weight = "Medium", italic = true }),
+    font = wezterm.font("EnvyCodeR Nerd Font Mono", { weight = "Medium", italic = true }),
   },
 }
-c.font_size = 12
-c.default_prog = utils.is_windows and
+config.font_size = 12
+config.default_prog = utils.is_windows and
     { "cmd.exe", '/k', "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvars64.bat" } or
     "zsh"
-c.adjust_window_size_when_changing_font_size = false
-c.audible_bell = "Disabled"
-c.scrollback_lines = 3000
-c.default_workspace = "main"
-c.status_update_interval = 2000
+config.adjust_window_size_when_changing_font_size = false
+config.audible_bell = "Disabled"
+config.scrollback_lines = 3000
+config.default_workspace = "main"
+config.status_update_interval = 2000
 
 local launch_menu = {}
 
-if wez.target_triple == 'x86_64-pc-windows-msvc' then
+if wezterm.target_triple == 'x86_64-pc-windows-msvc' then
   table.insert(launch_menu, {
     label = 'PowerShell',
     args = { 'powershell.exe', '-NoLogo' },
@@ -50,15 +52,27 @@ if wez.target_triple == 'x86_64-pc-windows-msvc' then
   })
 end
 
-c.launch_menu = launch_menu
+-- you can also list multiple paths
+sessionizer.config = {
+  paths = {
+    "R:/",
+    "~/projects",             -- linux
+    "C:/Users/RyanP/.config", --windows
+  }
+}
+
+config.launch_menu = launch_menu
 
 -- appearance
-appearance.apply_to_config(c)
+appearance.apply_to_config(config)
 
 -- keys
-mappings.apply_to_config(c)
+mappings.apply_to_config(config)
 
 -- bar
-bar.apply_to_config(c)
+bar.apply_to_config(config)
 
-return c
+-- sessionizer
+sessionizer.apply_to_config(config)
+
+return config
