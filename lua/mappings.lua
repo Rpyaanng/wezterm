@@ -1,6 +1,6 @@
-local wez = require "wezterm"
-local act = wez.action
-local callback = wez.action_callback
+local wezterm = require "wezterm"
+local act = wezterm.action
+local callback = wezterm.action_callback
 
 local mod = {
   c = "CTRL",
@@ -8,6 +8,7 @@ local mod = {
   a = "ALT",
   l = "LEADER",
 }
+local sessionizer = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer.wezterm"
 
 local keybind = function(mods, key, action)
   return { mods = table.concat(mods, "|"), key = key, action = action }
@@ -19,29 +20,37 @@ local leader = { mods = mod.c, key = "a", timeout_miliseconds = 1000 }
 
 local keys = function()
   local keys = {
+
     -- CTRL-A, CTRL-A sends CTRL-A
     keybind({ mod.l, mod.c }, "a", act.SendString "\x01"),
+
+    {
+      key = 'r',
+      mods = 'LEADER',
+      action = act.ActivateKeyTable {
+        name = 'resize_pane',
+        timeout_milliseconds = 1000,
+        one_shot = false,
+      },
+    },
 
     -- pane and tabs
     keybind({ mod.l }, "-", act.SplitVertical { domain = "CurrentPaneDomain" }),
     keybind({ mod.l }, "\\", act.SplitHorizontal { domain = "CurrentPaneDomain" }),
-    keybind({ mod.l }, "z", act.TogglePaneZoomState),
+    keybind({ mod.l }, "m", act.TogglePaneZoomState),
     keybind({ mod.l }, "c", act.SpawnTab "CurrentPaneDomain"),
     keybind({ mod.l }, "h", act.ActivatePaneDirection "Left"),
     keybind({ mod.l }, "j", act.ActivatePaneDirection "Down"),
     keybind({ mod.l }, "k", act.ActivatePaneDirection "Up"),
     keybind({ mod.l }, "l", act.ActivatePaneDirection "Right"),
     keybind({ mod.l }, "x", act.CloseCurrentPane { confirm = true }),
-    keybind({ mod.l, mod.s }, "H", act.AdjustPaneSize { "Left", 5 }),
-    keybind({ mod.l, mod.s }, "J", act.AdjustPaneSize { "Down", 5 }),
-    keybind({ mod.l, mod.s }, "K", act.AdjustPaneSize { "Up", 5 }),
-    keybind({ mod.l, mod.s }, "L", act.AdjustPaneSize { "Right", 5 }),
+
     keybind({ mod.l, mod.s }, "&", act.CloseCurrentTab { confirm = true }),
     keybind(
       { mod.l },
       "e",
       act.PromptInputLine {
-        description = wez.format {
+        description = wezterm.format {
           { Attribute = { Intensity = "Bold" } },
           { Foreground = { AnsiColor = "Fuchsia" } },
           { Text = "Renaming Tab Title...:" },
@@ -59,17 +68,21 @@ local keys = function()
     keybind({ mod.l }, "w", act.ShowLauncherArgs { flags = "FUZZY|WORKSPACES" }),
 
     -- copy and paste
-    keybind({ mod.c, mod.s }, "c", act.CopyTo "Clipboard"),
-    keybind({ mod.c, mod.s }, "v", act.PasteFrom "Clipboard"),
+    keybind({ mod.c }, "c", act.CopyTo "Clipboard"),
+    keybind({ mod.c }, "v", act.PasteFrom "Clipboard"),
 
-    -- launch spotify_player as a small pane in the bottom
+
+    -- sessionizer
+    keybind({ mod.l }, "f", sessionizer.show),
+
+    -- launch spotify-tui as a small pane in the bottom
     keybind(
       { mod.l },
       "s",
       act.SplitPane {
         direction = "Down",
-        command = { args = { "spotify_player" } },
-        size = { Cells = 6 },
+        command = { args = { "spt" } },
+        size = { Cells = 20 },
       }
     ),
 
@@ -78,11 +91,12 @@ local keys = function()
       { mod.l },
       "u",
       callback(function(win)
-        wez.plugin.update_all()
+        wezterm.plugin.update_all()
         win:toast_notification("wezterm", "plugins updated!", nil, 4000)
       end)
     ),
   }
+
 
   -- tab navigation
   for i = 1, 9 do
@@ -91,10 +105,24 @@ local keys = function()
   return keys
 end
 
+local keyTables = function()
+  return {
+    resize_pane = {
+      { key = "h",      action = act.AdjustPaneSize { "Left", 5 } },
+      { key = "j",      action = act.AdjustPaneSize { "Down", 5 } },
+      { key = "k",      action = act.AdjustPaneSize { "Up", 5 } },
+      { key = "l",      action = act.AdjustPaneSize { "Right", 5 } },
+      -- Cancel the mode by pressing escape
+      { key = 'Escape', action = 'PopKeyTable' },
+    }
+  }
+end
+
 M.apply_to_config = function(c)
   c.treat_left_ctrlalt_as_altgr = true
   c.leader = leader
   c.keys = keys()
+  c.key_tables = keyTables()
 end
 
 return M
