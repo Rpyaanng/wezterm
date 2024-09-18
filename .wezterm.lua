@@ -14,15 +14,6 @@ if wezterm.config_builder then
 end
 
 -- General configurations
-config.font = wezterm.font("EnvyCodeR Nerd Font Mono", { weight = "Medium" })
-config.font_rules = {
-  {
-    italic = true,
-    intensity = "Half",
-    font = wezterm.font("EnvyCodeR Nerd Font Mono", { weight = "Medium", italic = true }),
-  },
-}
-config.font_size = 12
 config.default_prog = utils.is_windows and
     { "cmd.exe", '/k', "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvars64.bat" } or
     "zsh"
@@ -31,6 +22,7 @@ config.audible_bell = "Disabled"
 config.scrollback_lines = 3000
 config.default_workspace = "main"
 config.status_update_interval = 2000
+config.window_close_confirmation = 'NeverPrompt'
 
 local launch_menu = {}
 
@@ -56,8 +48,9 @@ end
 sessionizer.config = {
   paths = {
     "R:/",
-    "~/projects",             -- linux
-    "C:/Users/RyanP/.config", --windows
+    "~/projects",                        -- linux
+    "C:/Users/RyanP/.config",            --windows
+    "C:/Users/RyanP/Appdata/local/nvim", --windows
   }
 }
 

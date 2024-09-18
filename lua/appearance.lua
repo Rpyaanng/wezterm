@@ -1,10 +1,11 @@
-local wez = require "wezterm"
+local wezterm = require "wezterm"
 
 local M = {}
-
 M.apply_to_config = function(c)
-  c.color_scheme = "Catppuccin Mocha"
-  local scheme = wez.color.get_builtin_schemes()["Catppuccin Mocha"]
+  local font = "Pragmasevka Nerd Font"
+  c.font = wezterm.font("Pragmasevka Nerd Font", { weight = "Regular", stretch = "Normal", style = "Normal" })
+  c.color_scheme = "Github Dark (Gogh)"
+  local scheme = wezterm.color.get_builtin_schemes()["Catppuccin Mocha"]
   c.colors = {
     split = scheme.ansi[2],
   }
