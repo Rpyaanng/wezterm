@@ -1,6 +1,7 @@
 local wezterm = require "wezterm"
 local act = wezterm.action
 local callback = wezterm.action_callback
+local os = require "os"
 
 local mod = {
   c = "CTRL",
@@ -41,8 +42,32 @@ local keys = function()
     keybind({ mod.l }, "c", act.SpawnTab "CurrentPaneDomain"),
     keybind({ mod.l }, "h", act.ActivatePaneDirection "Left"),
     keybind({ mod.l }, "j", act.ActivatePaneDirection "Down"),
+    keybind({ mod.c, mod.s }, "w", act.CloseCurrentPane { confirm = false }),
     keybind({ mod.l }, "k", act.ActivatePaneDirection "Up"),
     keybind({ mod.l }, "l", act.ActivatePaneDirection "Right"),
+    keybind({ mod.l }, "m", callback(function(win, pane)
+      local InActive = nil;
+      for _, item in ipairs(win:active_tab():panes_with_info()) do
+        if not item.is_active then
+          item.pane:paste("fd shell | cmd /k \n")
+          return
+        end
+      end
+      local action = wezterm.action {
+        SplitPane = {
+          direction = 'Right',
+          size = { Percent = 30 },
+          command = {
+            args = {
+              'cmd',
+              '/k',
+              'fd shell | cmd /k',
+            },
+          },
+        },
+      };
+      win:perform_action(action, pane);
+    end)),
     keybind({ mod.l }, "x", act.CloseCurrentPane { confirm = true }),
 
     keybind({ mod.l, mod.s }, "&", act.CloseCurrentTab { confirm = true }),

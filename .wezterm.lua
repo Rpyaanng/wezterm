@@ -46,6 +46,9 @@ end
 
 -- you can also list multiple paths
 sessionizer.config = {
+  command_options = {
+    max_depth = 4,
+  },
   paths = {
     "R:/",
     "~/projects",                        -- linux

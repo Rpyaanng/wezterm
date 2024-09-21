@@ -4,8 +4,8 @@ local M = {}
 M.apply_to_config = function(c)
   local font = "Pragmasevka Nerd Font"
   c.font = wezterm.font("Pragmasevka Nerd Font", { weight = "Regular", stretch = "Normal", style = "Normal" })
-  c.color_scheme = "Github Dark (Gogh)"
-  local scheme = wezterm.color.get_builtin_schemes()["Catppuccin Mocha"]
+  c.color_scheme = "Ayu Dark (Gogh)"
+  local scheme = wezterm.color.get_builtin_schemes()[c.color_scheme]
   c.colors = {
     split = scheme.ansi[2],
   }
