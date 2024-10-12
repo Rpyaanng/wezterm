@@ -2,8 +2,8 @@ local wezterm = require "wezterm"
 
 local M = {}
 M.apply_to_config = function(c)
-  local font = "Pragmasevka Nerd Font"
-  c.font = wezterm.font("Pragmasevka Nerd Font", { weight = "Regular", stretch = "Normal", style = "Normal" })
+  local font = "GeistMono NF" -- Case sensitive
+  c.font = wezterm.font(font)
   c.color_scheme = "Ayu Dark (Gogh)"
   local scheme = wezterm.color.get_builtin_schemes()[c.color_scheme]
   c.colors = {

@@ -3,6 +3,9 @@ local act = wezterm.action
 local callback = wezterm.action_callback
 local os = require "os"
 
+-- plugins
+local resurrect = wezterm.plugin.require "https://github.com/MLFlexer/resurrect.wezterm"
+
 local mod = {
   c = "CTRL",
   s = "SHIFT",
@@ -39,13 +42,13 @@ local keys = function()
     keybind({ mod.l }, "-", act.SplitVertical { domain = "CurrentPaneDomain" }),
     keybind({ mod.l }, "\\", act.SplitHorizontal { domain = "CurrentPaneDomain" }),
     keybind({ mod.l }, "m", act.TogglePaneZoomState),
-    keybind({ mod.l }, "c", act.SpawnTab "CurrentPaneDomain"),
-    keybind({ mod.l }, "h", act.ActivatePaneDirection "Left"),
-    keybind({ mod.l }, "j", act.ActivatePaneDirection "Down"),
     keybind({ mod.c, mod.s }, "w", act.CloseCurrentPane { confirm = false }),
-    keybind({ mod.l }, "k", act.ActivatePaneDirection "Up"),
-    keybind({ mod.l }, "l", act.ActivatePaneDirection "Right"),
-    keybind({ mod.l }, "m", callback(function(win, pane)
+    keybind({ mod.l }, "c", act.SpawnTab "CurrentPaneDomain"),
+    keybind({ mod.a }, "h", act.EmitEvent "ActivatePaneDirection-left"),
+    keybind({ mod.a }, "j", act.EmitEvent "ActivatePaneDirection-down"),
+    keybind({ mod.a }, "k", act.EmitEvent "ActivatePaneDirection-up"),
+    keybind({ mod.a }, "l", act.EmitEvent "ActivatePaneDirection-right"),
+    keybind({ mod.l, mod.s }, "m", callback(function(win, pane)
       local InActive = nil;
       for _, item in ipairs(win:active_tab():panes_with_info()) do
         if not item.is_active then
@@ -69,7 +72,6 @@ local keys = function()
       win:perform_action(action, pane);
     end)),
     keybind({ mod.l }, "x", act.CloseCurrentPane { confirm = true }),
-
     keybind({ mod.l, mod.s }, "&", act.CloseCurrentTab { confirm = true }),
     keybind(
       { mod.l },
@@ -94,8 +96,15 @@ local keys = function()
 
     -- copy and paste
     keybind({ mod.c }, "c", act.CopyTo "Clipboard"),
+    keybind({ mod.a }, "g", callback(function(window, pane)
+      local current_tab_id = pane:tab():tab_id()
+      local cmd = "lazygit && wezterm cli activate-tab --tab-id " .. current_tab_id .. " && exit\n"
+      local tab, tab_pane, _ = window:mux_window():spawn_tab({})
+      tab_pane:paste(cmd)
+      tab:set_title(wezterm.nerdfonts.dev_git .. " Lazygit")
+    end)),
     keybind({ mod.c }, "v", act.PasteFrom "Clipboard"),
-
+    keybind({ mod.c, mod.s }, "c", act.SendKey { key = 'c', mods = 'CTRL' }), -- To cancel processes
 
     -- sessionizer
     keybind({ mod.l }, "f", sessionizer.show),
